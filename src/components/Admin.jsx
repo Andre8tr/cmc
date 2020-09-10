@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { auth } from '../firebase'
 import { withRouter } from 'react-router-dom'
+import axios from 'axios'
 
 
 const Admin = (props) => {
@@ -9,15 +10,133 @@ const Admin = (props) => {
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('')
   const [price, setPrice] = useState('')
+  const [edit, setEdit] = useState(false)
+  const [articles, setArticles] = useState([])
+  const [error, setError] = useState(null)
+  const [id, setId] = useState('')
   useEffect(() => {
     if(auth.currentUser){
-      console.log('Log');
       setUser(auth.currentUser)
+      getArticle()
+
     }else{
       console.log('Err');
       props.history.push('/login')
     }
   }, [props.history])
+
+  const saveArticle = async (e) => {
+    e.preventDefault()
+    try {
+      console.log('Save');
+      if (!name.trim()){
+        setError('Escriba un nombre para el articulo')
+        return
+      }else if (!description.trim()){
+        setError('Escriba una descripción para el artículo')
+        return
+      }else if (!category.trim()){
+        setError('Eliga una categoría')
+        return
+      }else if (parseInt(price) <= 0){
+        console.log(typeof(price));
+        setError('Indique un precio valido')
+        return
+      }
+      const newArticle = {
+        name: name,
+        description: description,
+        category: category,
+        price: price
+      }
+      console.log(newArticle);
+      setError(null)
+      if (!edit){
+        console.log('Guardando');
+        addArticle(newArticle)
+      }else{
+        console.log('Editando');
+        editArticle(newArticle)
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+
+    }
+  }
+
+  const addArticle = async(newArticle) => {
+    try {
+      const url = 'http://localhost:3700/api/saveArticle'
+      await axios.post(url, newArticle)
+      limpiar()
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await getArticle()
+
+    }
+  }
+
+  const editArticle = async(newArticle) => {
+    try {
+      console.log('Funcion editar');
+      const url =  `http://localhost:3700/api/updateArticle/${id}`
+      await axios.put(url, newArticle)
+      limpiar()
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await getArticle()
+
+    }
+  }
+
+  const getArticle = async() => {
+    try {
+      const url = 'http://localhost:3700/api/getArticles'
+      const data = await axios.get(url)
+      const articles = data.data.articles
+      setArticles(articles)
+
+    } catch (e) {
+      console.log(e);
+    } finally {
+
+    }
+  }
+
+  const aEdicion = (item) =>{
+    console.log(item._id);
+    setName(item.name)
+    setDescription(item.description)
+    setCategory(item.category)
+    setPrice(item.price)
+    setEdit(true)
+    setId(item._id)
+  }
+
+  const eliminar = async(id) => {
+    console.log(id);
+    try {
+      const url =  `http://localhost:3700/api/deleteArticle/${id}`
+      const res = await axios.delete(url)
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await getArticle()
+    }
+  }
+
+  const limpiar = () =>{
+    setName('')
+    setDescription('')
+    setCategory('')
+    setPrice('')
+    setError(null)
+    setEdit(false)
+  }
   return(
     <div>
       {
@@ -28,7 +147,14 @@ const Admin = (props) => {
       <div className = "row">
         <div className = "col-sm-12 col-sm-12 col-md-6 col-lg-6">
           <h2>Ingresar articulo</h2>
-          <form>
+          <form onSubmit={ saveArticle }>
+            {
+              error && (
+                <div className = "alert alert-danger">
+                  {error}
+                </div>
+              )
+            }
             <div className="form-group">
               <label htmlFor="exampleInputEmail1">Nombre</label>
               <input type="text" className="form-control" id="name" placeholder="Ingrese el nombre del articulo" onChange = {e => setName(e.target.value)} value = {name}/>
@@ -45,12 +171,27 @@ const Admin = (props) => {
              <label htmlFor="exampleInputEmail1">Precio</label>
              <input type="number" className="form-control" id="category" placeholder="Ingrese el precio del articulo" onChange = {e => setPrice(e.target.value)} value = {price} />
            </div>
-            <button type="submit" className="btn btn-success">Guardar</button>
+            <button type="submit" className={edit ? 'btn btn-warning' : 'btn btn-success'}>{edit ? "Editar" : 'Guardar'}</button>
           </form>
         </div>
         <div className = "col-sm-12 col-sm-12 col-md-6 col-lg-6">
-          <h2>Listado articulos</h2>
-        </div>
+        <h2 className = "text-center">Listado de articulos</h2>
+        <ul className = "list-groups">
+          {
+            articles.map(item => (
+              <li className = "list-group-item mb-3" key={item._id}>
+                Articulo: {item.name} <br />
+                Descripción: {item.description} <br />
+                Precio: Q{item.price}
+                  <button className = "btn btn-warning btn-sm float-right btn-sm mx-2"
+                          onClick={() => aEdicion(item)}>Editar</button>
+                  <button className = "btn btn-danger btn-sm float-right btn-sm mx-2"
+                          onClick = {() => eliminar(item._id)}>Eliminar</button>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
       </div>
 
     </div>

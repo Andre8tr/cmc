@@ -10,28 +10,28 @@ const Navbar = (props) => {
         })
   }
   return(
-    <div className = "navbar navbar-dark bg-dark">
+    <div className = "navbar navbar-dark bg-success">
       <Link className = "navbar-brand" to="/">
         CMC
       </Link>
       <div>
         <div className = "d-flex">
-          <NavLink className = "btn btn-dark mr-2" to ="/" exact>
+          <NavLink className = "btn btn-success mr-2" to ="/" exact>
             Inicio
           </NavLink>
           {
             props.firebaseUser !== null ?
-            (<NavLink className = "btn btn-dark mr-2" to ="/admin" exact>
+            (<NavLink className = "btn btn-success mr-2" to ="/admin" exact>
               Admin
             </NavLink>) : null
-             
+
           }
           {
             props.firebaseUser !== null ?
-            (<button className = "btn btn-dark mr-2"
+            (<button className = "btn btn-success mr-2"
                      onClick={() => cerrarSesion()}
             >Cerrar sesion</button>) :
-             (<NavLink className = "btn btn-dark mr-2" to ="/login" exact>
+             (<NavLink className = "btn btn-success mr-2" to ="/login" exact>
               Login
             </NavLink>)
           }

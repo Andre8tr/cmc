@@ -53,6 +53,7 @@ const Login = (props) => {
     try {
       await auth.signInWithEmailAndPassword(email, pass)
       props.history.push('/admin')
+      limpiar()
     } catch (e) {
       console.log(e);
       if(e.code === 'auth/wrong-password'){
@@ -63,7 +64,7 @@ const Login = (props) => {
         setError('El formato del correo no es el correcto, revisa que tenga un @ y termine en un dominio valido')
       }
     } finally {
-      limpiar()
+
     }
   }, [email, pass, props.history])
 
