@@ -67,7 +67,7 @@ const Admin = (props) => {
 
   const addArticle = async(newArticle) => {
     try {
-      const url = 'http://localhost:3700/api/saveArticle'
+      const url = 'https://backendode.herokuapp.com/api/saveArticle'
       await axios.post(url, newArticle)
       limpiar()
     } catch (e) {
@@ -81,7 +81,7 @@ const Admin = (props) => {
   const editArticle = async(newArticle) => {
     try {
       console.log('Funcion editar');
-      const url =  `http://localhost:3700/api/updateArticle/${id}`
+      const url =  `https://backendode.herokuapp.com/api/updateArticle/${id}`
       await axios.put(url, newArticle)
       limpiar()
     } catch (e) {
@@ -94,7 +94,7 @@ const Admin = (props) => {
 
   const getArticle = async() => {
     try {
-      const url = 'http://localhost:3700/api/getArticles'
+      const url = 'https://backendode.herokuapp.com/api/getArticles'
       const data = await axios.get(url)
       const articles = data.data.articles
       setArticles(articles)
@@ -119,7 +119,7 @@ const Admin = (props) => {
   const eliminar = async(id) => {
     console.log(id);
     try {
-      const url =  `http://localhost:3700/api/deleteArticle/${id}`
+      const url =  `https://backendode.herokuapp.com/api/deleteArticle/${id}`
       const res = await axios.delete(url)
       console.log(res);
     } catch (e) {
@@ -164,13 +164,25 @@ const Admin = (props) => {
              <textarea className="form-control" id="description" rows="3" onChange = {e => setDescription(e.target.value)} value = {description}></textarea>
            </div>
            <div className="form-group">
-             <label htmlFor="exampleInputEmail1">Categoría</label>
-             <input type="text" className="form-control" id="category" placeholder="Seleccione la categoría del articulo" onChange = {e => setCategory(e.target.value)} value = {category}/>
-           </div>
+            <label htmlFor="exampleFormControlSelect2">Cateogira</label>
+            <select  className="form-control" onChange={(e) => {
+              setCategory(e.target.value)
+            }}
+            value = {category} >
+              <option  hidden >Seleccione una opción...</option>
+              <option>Accesorios</option>
+              <option>Baños</option>
+              <option>Decoracion</option>
+              <option>Herramientas</option>
+              <option>Juegos</option>
+              <option>Otra</option>
+            </select>
+          </div>
            <div className="form-group">
              <label htmlFor="exampleInputEmail1">Precio</label>
              <input type="number" className="form-control" id="category" placeholder="Ingrese el precio del articulo" onChange = {e => setPrice(e.target.value)} value = {price} />
            </div>
+
             <button type="submit" className={edit ? 'btn btn-warning' : 'btn btn-success'}>{edit ? "Editar" : 'Guardar'}</button>
           </form>
         </div>
@@ -182,6 +194,7 @@ const Admin = (props) => {
               <li className = "list-group-item mb-3" key={item._id}>
                 Articulo: {item.name} <br />
                 Descripción: {item.description} <br />
+                Categoría: {item.category} <br />
                 Precio: Q{item.price}
                   <button className = "btn btn-warning btn-sm float-right btn-sm mx-2"
                           onClick={() => aEdicion(item)}>Editar</button>
